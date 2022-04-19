@@ -1,6 +1,8 @@
 import random as rd
 import pprint
 from PIL import Image
+import turtle
+from random import randint
 
 print("grow tree")
 #print(round(rd.random()*100, 0))
@@ -72,8 +74,6 @@ trees_description = {
 
 
 
-
-
 class Tree():
     def __init__(self, name):
         self.height = 0
@@ -89,9 +89,7 @@ class Tree():
             print(key)
      
 
-def get_picture(tree_name):
-    im = Image.open(f'H:\\python\\growtree\\img_tree\\{tree_name}.jpg')
-    im.show()
+
 
 
      
@@ -109,18 +107,125 @@ class UserActions():
 
 
 
+
+def getPicture(tree_name):
+    im = Image.open(f'H:\\python\\growtree\\img_tree\\{tree_name}.jpg')
+    im.show()
+
+
+
+def drawTree():
+    turtle.speed(4)
+    turtle.hideturtle()
+    turtle.tracer(10)
+    #turtle.delay(1)
+    turtle.penup()
+    turtle.setposition(0,-300)
+    turtle.left(90)
+    turtle.pendown()
+    thick = 16
+    turtle.pensize(thick)
+
+    axiom = "22220"
+    axmTemp = ""
+    itr = 3
+    angl = 14
+    dl = 10
+    level = 0
+    stc = []
+    #--------------------------------------------
+    for k in range(itr):
+        for ch in axiom:
+            if ch == '0':
+                axmTemp+= '1[-20][+20]'
+            elif ch == '1':
+                axmTemp+= '21' 
+            elif ch == '[':
+                axmTemp+= '[' 
+                level += 1
+            elif ch == ']':
+                axmTemp+= ']'
+                level -= 1
+            elif ch == '2':
+                if randint(0,100) < 7 and level > 2 :
+                    axmTemp+= '3[^30]'  
+                else:
+                    axmTemp+='2'
+            else:
+                axmTemp+=ch
+        axiom = axmTemp
+        axmTemp = ""   
+    #--------------------------------------------
+
+    for ch in axiom:
+        if   ch == "+":
+            turtle.right(angl - randint(-13,13))
+        elif ch == "-":
+            turtle.left(angl - randint(-13,13))
+        elif ch == "^":
+            ug = randint(-30,30)
+            if ug < 0:
+                turtle.left(ug-25)
+            else:
+                turtle.left(ug+25)
+        elif ch == "[":
+            level += 1
+            stc.append(thick)
+            stc.append(turtle.xcor())
+            stc.append(turtle.ycor())
+            stc.append(turtle.heading())
+            thick = thick*0.75
+            turtle.pensize(thick)      
+        elif ch == "]":
+            level -= 1
+            turtle.penup()
+            turtle.setheading(stc.pop())
+            turtle.sety(stc.pop())
+            turtle.setx(stc.pop())
+            thick = stc.pop()
+            turtle.pensize(thick)
+            turtle.pendown()
+        elif ch == "0":
+            stc.append(turtle.pensize())
+            turtle.pensize(4)
+            r = randint(0,10)
+            if r<3:
+                turtle.pencolor('#ff6347') #зеленый
+            elif r>6:
+                turtle.pencolor('#667900') #желто-зеленый
+            else:
+                turtle.pencolor('#f5f7e9') #зеленый
+            turtle.forward(dl-2)
+            turtle.pensize(stc.pop())   
+            turtle.pencolor('#000000')
+        else:   
+            if randint(0,10)>4:
+                turtle.forward(dl) 
+
+    turtle.update()        
+    turtle.mainloop()
+
+
+
+
+
+
+
+
+
 print('Какое дерево мы будем выращивать сегодня? Введите название или выберите из списка') #список добавить либо щелчок по дереву            
 treeUser = input().lower()
 
 try:
     print(trees_dict[treeUser])
     print(trees_description[treeUser])
-    get_picture(trees_dict[treeUser])
+    #getPicture(trees_dict[treeUser])
     tree = Tree(trees_dict[treeUser])
-    UserActions.waterThePlant()
-    UserActions.UserActionsInfo()
+    #UserActions.waterThePlant()
+    #UserActions.UserActionsInfo()
     tree.grow()
     print(tree.info())
+    drawTree()
 except KeyError as ke:
     print('Дерево не найдено в списке: ', ke)
 
